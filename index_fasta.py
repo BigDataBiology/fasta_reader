@@ -81,9 +81,13 @@ def create_index(input_file, output_file, key_length):
     print("Index creation finished!")
 
 
-if __name__ == '__main__':
+def main():
     args = parse_args()
     ifile = args.input_file
     ofile = args.output_file if 'output_file' in args else ifile + '.dhi'
     key_length = check_max_header_len(input_file=ifile) + 1
     create_index(input_file=ifile, output_file=ofile, key_length=key_length)
+
+
+if __name__ == '__main__':
+    main()
