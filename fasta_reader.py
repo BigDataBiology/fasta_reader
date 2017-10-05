@@ -15,27 +15,46 @@ class IndexedFastaReader(object):
         self.index = StructHash(index_file, 0, '2l', 'r')
         self.fasta = open(fasta_file, 'r')
 
-    def lookup(self, gene_id):
+    def lookup(self, sequence_id):
         """
         Lookup coordinates in the index file.
 
-        :param gene_id: sequence identifier
-        :return: tuple: start position, end position and a boolean flag
+        :param sequence_id: sequence identifier
+        :return: tuple: start position, length (in bases) and a boolean flag
                  indicating if the sequence includes newline characters.
         """
-        s, em = self.index.lookup(gene_id)
-        return s, em >> 1, bool(em%2)
+        s, lm = self.index.lookup(sequence_id)
+        return s, lm >> 1, bool(lm%2)
 
-    def get(self, gene_id):
+    def get(self, sequence_id):
         """
-        Get the sequence of given contig/gene.
+        Get the sequence corresponding to given sequence identifier.
 
-        :param gene_id: sequence identifier
+        Note: if you only need the length of the sequence, use get_length method instead.
+
+        :param sequence_id: sequence identifier
         :return: sequence corresponding to given identifier
         """
-        start, end, multiline = self.lookup(gene_id=gene_id)
+        start, length, multiline = self.lookup(sequence_id=sequence_id)
         self.fasta.seek(start)
-        sequence = self.fasta.read(end - start)
         if multiline:
-            sequence = sequence.replace('\n', '')
+            sequence = ''
+            while True:
+                line = self.fasta.readline().strip()
+                if line.startswith('>'):
+                    break
+                sequence += line
+        else:
+            sequence = self.fasta.read(length)
         return sequence
+
+    def get_length(self, sequence_id):
+        """
+        Get the length of the sequence corresponding to given identifier.
+
+        :param sequence_id: sequence identifier
+        :return: sequence length (in bases)
+        """
+
+        _, l, _ = self.lookup(sequence_id)
+        return l
