@@ -30,18 +30,32 @@ def parse_args():
 
 
 def check_max_header_len(input_file):
+    """
+    Check the maximal key length in a fasta file.
+    :param input_file: path to fasta file
+    :return: lenght of longest sequence identifier
+    """
     max_line = 0
     with open(input_file, 'r') as fasta:
         for line in fasta:
             line = line.split()[0]
             if line.startswith('>') and (len(line) - 1) > max_line:
                 max_line = len(line) - 1  # without '>' and '\n'
-    return max_line + 1
+    return max_line
 
 
-def create_index(input_file, output_file, header_len=15):
-    print(header_len)
-    tb = StructHash(output_file, header_len, '2l', 'w')
+def create_index(input_file, output_file, key_length):
+    """
+    Create diskhash index for a fasta file.
+
+    :param input_file: path to the fasta file to index
+    :param output_file: path to the index
+    :param key_length: Maximal length of index key (in this case: sequence identifier)
+    :return:
+    """
+    print("Creating diskhash index for {input_file}.\n"
+          "Index will be stored in {}.\nKey length set to {header_len}".format(**locals()))
+    tb = StructHash(output_file, key_length, '2l', 'w')
 
     with open(input_file, 'r') as fasta:
         line = fasta.readline()
@@ -61,10 +75,11 @@ def create_index(input_file, output_file, header_len=15):
                 multiline = True
             position_end = fasta.tell()
             line = fasta.readline()
+    print("Index creation finished!")
 
 
 if __name__ == '__main__':
     args = parse_args()
     ifile = args.input_file
     ofile = args.output_file if 'output_file' in args else ifile + '.dhi'
-    create_index(input_file=ifile, output_file=ofile, header_len=check_max_header_len(input_file=ifile))
+    create_index(input_file=ifile, output_file=ofile, key_length=check_max_header_len(input_file=ifile) + 1)
