@@ -78,6 +78,8 @@ def create_index(input_file, output_file, key_length):
                 multiline = multiline is not None
                 seq_len += len(line.strip())
             line = fasta.readline()
+        if header:
+            tb.insert(header, position_start, (seq_len << 1) + multiline)
     print("Index creation finished!")
 
 

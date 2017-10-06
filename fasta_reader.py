@@ -48,7 +48,7 @@ class IndexedFastaReader(object):
             sequence = ''
             while True:
                 line = self.fasta.readline().strip()
-                if line.startswith('>'):
+                if not line or line.startswith('>'):
                     break
                 sequence += line
         else:
