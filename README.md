@@ -1,7 +1,8 @@
 # Diskhash indexed fasta reader
 
+Little package for indexing fasta files with diskhash and using fasta files indexed in this way.
 
-## Examples
+## Use examples
 
 ### Indexing fasta file
 
@@ -27,4 +28,8 @@ ifr.get('my_seq_id1')
 # check number of sequences
 ifr.index.size()
 ```
- 
+
+## Dependencies
+
+[diskhash](https://github.com/luispedro/diskhash) package is required. Code was tested with version 0.2.
+When installed with setup.py, the package will be installed from pypi. 

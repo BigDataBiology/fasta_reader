@@ -37,7 +37,7 @@ setup(
 
     py_modules=["fasta_reader", "index_fasta"],
 
-    install_requires=['diskhash'],
+    install_requires=['diskhash==0.2'],
 
     entry_points={
         'console_scripts': [
