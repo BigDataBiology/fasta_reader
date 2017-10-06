@@ -23,8 +23,11 @@ class IndexedFastaReader(object):
         :return: tuple: start position, length (in bases) and a boolean flag
                  indicating if the sequence includes newline characters.
         """
-        s, lm = self.index.lookup(sequence_id)
-        return s, lm >> 1, bool(lm%2)
+        try:
+            s, lm = self.index.lookup(sequence_id)
+            return s, lm >> 1, bool(lm%2)
+        except TypeError:
+            return None
 
     def get(self, sequence_id):
         """
@@ -33,9 +36,13 @@ class IndexedFastaReader(object):
         Note: if you only need the length of the sequence, use get_length method instead.
 
         :param sequence_id: sequence identifier
-        :return: sequence corresponding to given identifier
+        :return: sequence corresponding to given identifier or None if identifier not found
         """
-        start, length, multiline = self.lookup(sequence_id=sequence_id)
+
+        coordinates = self.lookup(sequence_id=sequence_id)
+        if not coordinates:
+            return None
+        start, length, multiline = coordinates
         self.fasta.seek(start)
         if multiline:
             sequence = ''
@@ -53,8 +60,10 @@ class IndexedFastaReader(object):
         Get the length of the sequence corresponding to given identifier.
 
         :param sequence_id: sequence identifier
-        :return: sequence length (in bases)
+        :return: sequence length (in bases) or None if identifier not found
         """
 
-        _, l, _ = self.lookup(sequence_id)
-        return l
+        coordinates = self.lookup(sequence_id)
+        if not coordinates:
+            return None
+        return coordinates[1]
