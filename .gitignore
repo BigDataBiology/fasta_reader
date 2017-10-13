@@ -1,0 +1,4 @@
+__pycache__/
+build/
+dist/
+fasta_reader.egg-info/

@@ -5,7 +5,7 @@ __author__ = 'glazek'
 
 class IndexedFastaReader(object):
 
-    def __init__(self, fasta_file, index_file=None):
+    def __init__(self, fasta_file, index_file=None, use_mmap=False):
         """
         Reader of fasta file indexed with diskhash index.
 
@@ -15,7 +15,11 @@ class IndexedFastaReader(object):
         if index_file is None:
             index_file = fasta_file + '.dhi'
         self.index = StructHash(index_file, 0, '2l', 'r')
-        self.fasta = open(fasta_file, 'r')
+        self.fasta = open(fasta_file, 'rb')
+        self.use_mmap = use_mmap
+        if use_mmap:
+            import mmap
+            self.data = mmap.mmap(self.fasta.fileno(), 0, access=mmap.ACCESS_READ)
 
     def lookup(self, sequence_id):
         """
@@ -45,17 +49,29 @@ class IndexedFastaReader(object):
         if not coordinates:
             return None
         start, length, multiline = coordinates
+        if self.use_mmap:
+            if not multiline:
+                return self.data[start:start+length]
+            end = self.data.find(b'\n>', start)
+            if end == -1:
+                seqdata = self.data[start:]
+            else:
+                seqdata = self.data[start:end]
+            seqdata = seqdata.replace(b'\n', b'')
+            assert len(seqdata) == length, "Retrieved length should match stored length"
+            return seqdata
+
+
         self.fasta.seek(start)
         if multiline:
-            sequence = ''
+            sequence = []
             while True:
                 line = self.fasta.readline().strip()
-                if not line or line.startswith('>'):
+                if not line or line.startswith(b'>'):
                     break
-                sequence += line
-        else:
-            sequence = self.fasta.read(length)
-        return sequence
+                sequence.append(line)
+            return b''.join(sequence)
+        return self.fasta.read(length)
 
     def get_length(self, sequence_id):
         """
