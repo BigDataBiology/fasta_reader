@@ -34,18 +34,22 @@ def check_max_header_len(input_file):
     """
     Check the maximal key length in a fasta file.
     :param input_file: path to fasta file
+    :return: number of sequences in input file
     :return: length of longest sequence identifier
     """
     max_line = 0
+    n_seqs = 0
     with open(input_file, 'r') as fasta:
         for line in fasta:
             line = line.split()[0]  # only the first token is the identifier
-            if line.startswith('>') and (len(line) - 1) > max_line:
-                max_line = len(line) - 1  # without '>'
-    return max_line
+            if line.startswith('>'):
+                n_seqs += 1
+                if (len(line) - 1) > max_line:
+                    max_line = len(line) - 1  # without '>'
+    return n_seqs, max_line
 
 
-def create_index(input_file, output_file, key_length):
+def create_index(input_file, output_file, key_length, n_seqs=None):
     """
     Create diskhash index for a fasta file.
     For each sequence the offset, length (in bases) and a flag indicating
@@ -55,11 +59,14 @@ def create_index(input_file, output_file, key_length):
     :param input_file: path to the fasta file to index
     :param output_file: path to the index
     :param key_length: Maximal length of index key (in this case: sequence identifier)
+    :param n_seqs: Number of sequences (estimated, can be None)
     :return:
     """
     print("Creating diskhash index for {input_file}.\n\n"
           "Index will be stored in {output_file}.\nKey length set to {key_length}.".format(**locals()))
     tb = StructHash(output_file, key_length, '2l', 'w')
+    if n_seqs is not None:
+        tb.reserve(n_seqs)
 
     with open(input_file, 'r') as fasta:
         line = fasta.readline()
@@ -87,8 +94,8 @@ def main():
     args = parse_args()
     ifile = args.input_file
     ofile = args.output_file if args.output_file else ifile + '.dhi'
-    key_length = check_max_header_len(input_file=ifile) + 1
-    create_index(input_file=ifile, output_file=ofile, key_length=key_length)
+    n_seqs, key_length = check_max_header_len(input_file=ifile)
+    create_index(input_file=ifile, output_file=ofile, key_length=(key_length+1), n_seqs=n_seqs)
 
 
 if __name__ == '__main__':
