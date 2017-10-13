@@ -5,13 +5,15 @@ __author__ = 'glazek'
 
 class IndexedFastaReader(object):
 
-    def __init__(self, index_file, fasta_file):
+    def __init__(self, fasta_file, index_file=None):
         """
         Reader of fasta file indexed with diskhash index.
 
-        :param index_file: path to index file (diskhash index)
         :param fasta_file: path to fasta file
+        :param index_file: path to index file (diskhash index). If None, uses (fasta_file + '.dhi')
         """
+        if index_file is None:
+            index_file = fasta_file + '.dhi'
         self.index = StructHash(index_file, 0, '2l', 'r')
         self.fasta = open(fasta_file, 'r')
 
