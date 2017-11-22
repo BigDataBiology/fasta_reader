@@ -15,7 +15,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='fasta_reader',
 
-    version='0.1.0',
+    version='0.1.1',
 
     description='Diskhash indexed fasta reader',
     long_description=long_description,
@@ -37,7 +37,7 @@ setup(
 
     py_modules=["fasta_reader", "index_fasta"],
 
-    install_requires=['diskhash==0.2.1'],
+    install_requires=['diskhash'],
 
     entry_points={
         'console_scripts': [
