@@ -66,6 +66,7 @@ def create_index(input_file, output_file, key_length, n_seqs=None):
           "Index will be stored in {output_file}.\nKey length set to {key_length}.".format(**locals()))
     tb = StructHash(output_file, key_length, '2l', 'w')
     if n_seqs is not None:
+        print("Number of sequences: {n_seqs}".format(n_seqs=n_seqs))
         tb.reserve(n_seqs)
 
     with open(input_file, 'r') as fasta:

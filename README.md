@@ -22,7 +22,7 @@ from fasta_reader import IndexedFastaReader
 ifr = IndexedFastaReader(fasta_file='my_fasta.fna', index_file='my_index.dhi')
 
 # check length of sequence
-ifr.get_lenght('my_seq_id1')
+ifr.get_length('my_seq_id1')
 # get the sequence
 ifr.get('my_seq_id1')
 # check number of sequences
