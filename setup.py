@@ -15,7 +15,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='fasta_reader',
 
-    version='0.1.1',
+    version='0.1.2',
 
     description='Diskhash indexed fasta reader',
     long_description=long_description,
@@ -28,9 +28,11 @@ setup(
     license='MIT',
 
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
 
     keywords='fasta diskhash index',
@@ -42,6 +44,7 @@ setup(
     entry_points={
         'console_scripts': [
             'index_fasta=index_fasta:main',
+            'fasta_reader=fasta_reader:main',
         ],
     },
 )

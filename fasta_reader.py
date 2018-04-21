@@ -85,3 +85,37 @@ class IndexedFastaReader(object):
         if not coordinates:
             return None
         return coordinates[1]
+
+def parse_args():
+    import argparse
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+
+    parser.add_argument('fasta_file',  metavar='FASTA',
+                        help='fasta file')
+    parser.add_argument('--index', required=False,
+                        help='path to the index file (by default: fasta_file + .dhi',
+                        dest='index_file')
+    parser.add_argument('query', metavar='QUERY',
+			nargs='*',
+                        help='Name(s) of sequence(s) to retrieve')
+    parser.add_argument('-F',
+                        dest='query_file')
+
+    return parser.parse_args()
+
+def main():
+    from itertools import chain
+    args = parse_args()
+    ix = IndexedFastaReader(args.fasta_file, args.index_file)
+    qs = [args.query]
+    if args.query_file:
+        qs.append(open(args.query_file))
+    for q in chain.from_iterable(qs):
+        q = q.strip()
+        s = ix.get(q)
+        if s:
+            print(">"+q)
+            print(s.decode('ascii'))
+
+if __name__ == '__main__':
+    main()
