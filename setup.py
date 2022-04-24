@@ -3,7 +3,7 @@ from setuptools import setup
 from codecs import open
 from os import path
 
-__author__ = 'glazek'
+__author__ = 'glazek and luispedro'
 
 
 here = path.abspath(path.dirname(__file__))
@@ -15,14 +15,14 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='fasta_reader',
 
-    version='0.1.2',
+    version='1.2.0',
 
     description='Diskhash indexed fasta reader',
     long_description=long_description,
 
     url='https://git.embl.de/glazek/fasta_reader',
 
-    author='Anna Glazek',
+    author='Anna Glazek & Luis Pedro Coelho',
     author_email='anna.glazek@embl.de',
 
     license='MIT',
@@ -33,6 +33,9 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
 
     keywords='fasta diskhash index',
