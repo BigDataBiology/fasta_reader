@@ -1,4 +1,5 @@
 import argparse
+import lzma
 
 from diskhash import StructHash
 
@@ -39,7 +40,8 @@ def check_max_header_len(input_file):
     """
     max_line = 0
     n_seqs = 0
-    with open(input_file, 'r') as fasta:
+    open_f = (lzma.open if input_file.endswith('.xz') else open)
+    with open_f(input_file, 'rt') as fasta:
         for line in fasta:
             line = line.split()[0]  # only the first token is the identifier
             if line.startswith('>'):
@@ -69,7 +71,8 @@ def create_index(input_file, output_file, key_length, n_seqs=None):
         print("Number of sequences: {n_seqs}".format(n_seqs=n_seqs))
         tb.reserve(n_seqs)
 
-    with open(input_file, 'r') as fasta:
+    open_f = (lzma.open if input_file.endswith('.xz') else open)
+    with open_f(input_file, 'rt') as fasta:
         line = fasta.readline()
         header = None
         position_start = 0
@@ -94,7 +97,10 @@ def create_index(input_file, output_file, key_length, n_seqs=None):
 def main():
     args = parse_args()
     ifile = args.input_file
-    ofile = args.output_file if args.output_file else ifile + '.dhi'
+    if args.output_file:
+        ofile = args.output_file
+    else:
+        ofile = (ifile[:-len('.xz')] if ifile.endswith('.xz') else ifile) + '.dhi'
     n_seqs, key_length = check_max_header_len(input_file=ifile)
     create_index(input_file=ifile, output_file=ofile, key_length=(key_length+1), n_seqs=n_seqs)
 

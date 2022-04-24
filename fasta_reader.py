@@ -13,9 +13,20 @@ class IndexedFastaReader(object):
         :param index_file: path to index file (diskhash index). If None, uses (fasta_file + '.dhi')
         """
         if index_file is None:
-            index_file = fasta_file + '.dhi'
+            index_file = (fasta_file[:-len('.xz')] if fasta_file.endswith('.xz') else fasta_file) + '.dhi'
         self.index = StructHash(index_file, 0, '2l', 'r')
-        self.fasta = open(fasta_file, 'rb')
+        if fasta_file.endswith('.xz'):
+            if use_mmap:
+                raise ValueError("use_mmap cannot be used with xz files")
+            try:
+                import xz
+            except ImportError:
+                raise ImportError("Module xz not found.\n"
+                                "The standard Python lzma module does not support random access.\n\n"
+                                "It can be installed with `pip install python-xz`\n")
+            self.fasta = xz.open(fasta_file, 'rb')
+        else:
+            self.fasta = open(fasta_file, 'rb')
         self.use_mmap = use_mmap
         if use_mmap:
             import mmap
