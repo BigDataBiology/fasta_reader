@@ -32,6 +32,9 @@ class IndexedFastaReader(object):
             import mmap
             self.data = mmap.mmap(self.fasta.fileno(), 0, access=mmap.ACCESS_READ)
 
+    def __del__(self):
+        self.fasta.close()
+
     def lookup(self, sequence_id):
         """
         Lookup coordinates in the index file.
