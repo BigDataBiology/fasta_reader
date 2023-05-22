@@ -27,6 +27,9 @@ def parse_args():
     parser.add_argument('-o', '--output', required=False,
                         help='path to the output index file',
                         dest='output_file')
+    parser.add_argument('--progress', action='store_true',
+                        dest='progress', default=False,
+                        help='show progress bar')
 
     return parser.parse_args()
 
@@ -51,7 +54,7 @@ def check_max_header_len(input_file):
     return n_seqs, max_line
 
 
-def create_index(input_file, output_file, key_length, n_seqs=None):
+def create_index(input_file, output_file, key_length, n_seqs=None, progress=False):
     """
     Create diskhash index for a fasta file.
     For each sequence the offset, length (in bases) and a flag indicating
@@ -62,6 +65,7 @@ def create_index(input_file, output_file, key_length, n_seqs=None):
     :param output_file: path to the index
     :param key_length: Maximal length of index key (in this case: sequence identifier)
     :param n_seqs: Number of sequences (estimated, can be None)
+    :param progress: Show progress bar
     :return:
     """
     print("Creating diskhash index for {input_file}.\n\n"
@@ -71,6 +75,7 @@ def create_index(input_file, output_file, key_length, n_seqs=None):
         print("Number of sequences: {n_seqs}".format(n_seqs=n_seqs))
         tb.reserve(n_seqs)
 
+    ix = 0
     open_f = (lzma.open if input_file.endswith('.xz') else open)
     with open_f(input_file, 'rt') as fasta:
         line = fasta.readline()
@@ -80,7 +85,11 @@ def create_index(input_file, output_file, key_length, n_seqs=None):
         multiline = None
         while line:
             if line.startswith('>'):
-                if header: tb.insert(header, position_start, (seq_len << 1) + multiline)
+                if header:
+                    tb.insert(header, position_start, (seq_len << 1) + multiline)
+                    ix += 1
+                    if progress and ix % (nr_seqs//1000) == 0:
+                        print(f'Progress: {ix/nr_seqs:.1%} sequences', end='\r')
                 header = line.split()[0].lstrip('>')
                 position_start = fasta.tell()
                 multiline = None
@@ -101,8 +110,10 @@ def main():
         ofile = args.output_file
     else:
         ofile = (ifile[:-len('.xz')] if ifile.endswith('.xz') else ifile) + '.dhi'
+    if args.progress:
+        print('Will first count number of sequences and maximal header length (this may take a while)...')
     n_seqs, key_length = check_max_header_len(input_file=ifile)
-    create_index(input_file=ifile, output_file=ofile, key_length=(key_length+1), n_seqs=n_seqs)
+    create_index(input_file=ifile, output_file=ofile, key_length=(key_length+1), n_seqs=n_seqs, progress=args.progress)
 
 
 if __name__ == '__main__':
