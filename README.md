@@ -6,13 +6,34 @@ Little package for indexing fasta files with diskhash and using fasta files inde
 
 ### Indexing fasta file
 
-To create a diskhash based index for a fasta file use the index_fasta command line tool:
+To create a diskhash based index for a fasta file use the `index_fasta` command line tool:
 
 ```bash
-index_fasta my_fasta.fna -o my_index.dhi
+index_fasta GMGC10.10.fna
 ```
 
-### Using indexed fasta file
+### Using indexed fasta file (command line)
+
+Use the `fasta_reader` command line tool passing as a first argument the
+previously-indexed FASTA file and then a list of sequences to retrieve
+
+```bash
+fasta_reader GMGC10.10.fna GMGC10.027_772_348.UNKNOWN GMGC10.014_522_894.UNKNOWN
+```
+
+Will produce
+
+```
+>GMGC10.027_772_348.UNKNOWN
+ATGTATGACTGCGGGCACTACCTGCCAGAGCCGTTCCCGGATGAACTGGCGGATGAATTCAGAATGTTCTTTCTCTTGAATCGCCACGGGTTTAACAGACACCTCCGAGTCATTTAA
+>GMGC10.014_522_894.UNKNOWN
+ATGAATATATCGGAAATTGAAAAAATCGCAGCAAAGGAAATATTATTATGGGTTAAAGAGAGGATATTTCAGAAAAATGCCCTCCCGTTCAAGGGGAAGGCGAGGAATTACAGATAG
+```
+
+Note that if the sequence is not found, then no output is produced
+
+
+### Using indexed fasta file (from Python)
 
 Sequences from diskhash indexed fasta file can be accessed using *IndexedFastaReader*: 
 
